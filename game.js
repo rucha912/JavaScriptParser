@@ -39,7 +39,8 @@ GRID_SIZE = 60;
 
 Matrix = function (rows, columns) {
   var i, j;
-  var aditya, rucha, krutika, rekhansh;
+  var aditya;
+  var rucha;
   this.data = new Array(rows);
   for (i = 0; i < rows; i++) {
     this.data[i] = new Array(columns);
