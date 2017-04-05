@@ -12,7 +12,7 @@ def extract_variables(filename):
 	lines = f2.readlines()
 	#print lines
 	line_no = 0
-	matches = re.findall('(let|var)(.*)\s*=*\s*(?=;)', text)
+	matches = re.findall('var\s+([a-zA-Z_][a-zA-Z0-9_]{0,31})', text)
 	for match in matches:
                 occurences = re.findall(match, text)
                 if len(occurences) == 1:
@@ -45,11 +45,28 @@ def extract_conditionals(filename):
                 else:
                     i = i + 1
 
+def balance_paranthesis(filename):
+        f = open(filename,'r')
+        count = 0
+        for line_number, line in enumerate(f):
+                if '{' in line:
+                        count = count +1
+                if '}' in line:
+                        count = count - 1
+
+        if count == 0:
+                print 'The paranthesis are balanced in your code'
+        if count < 0:
+                print 'There is an extra paranthesis in your code'
+        if count > 0:
+                print 'There is a missing paranthesis in your code'
+
 def main():
     filename = sys.argv[1]
     print 'Hi there! Here\'s your javascript file parser implemented in PYTHON.\n'
-    variables = extract_variables(filename)
-    conditionals = extract_conditionals(filename)
+    extract_variables(filename)
+    extract_conditionals(filename)
+    balance_paranthesis(filename) 
 
 if __name__ == '__main__':
   main()
