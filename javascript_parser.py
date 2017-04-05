@@ -12,7 +12,7 @@ def extract_variables(filename):
 	lines = f2.readlines()
 	#print lines
 	line_no = 0
-	matches = re.findall('var\s+([a-zA-Z_][a-zA-Z0-9_]{0,31})', text)
+	matches = re.findall('(let|var)(.*)\s*=*\s*(?=;)', text)
 	for match in matches:
                 occurences = re.findall(match, text)
                 if len(occurences) == 1:
@@ -25,11 +25,31 @@ def extract_variables(filename):
                                 print 'found at line:', num , '\n'
         f2.close()
 
+def extract_conditionals(filename):
+        f = open(filename, 'r')
+        i = 1
+        print '\nHere are one line if..else statements:\n'
+        for line_number, line in enumerate(f):
+            line_num = line_number + i
+            if line.startswith('if') and '{' not in line:
+                if next(f).startswith('{') == False:           
+                    print "IF statement found at:", line_num, "\n->", line
+                    i = i + 1
+                else:
+                    i = i + 1
+
+            if line.startswith('else') and '{' not in line:
+                if next(f).startswith('{') == False:           
+                    print "ELSE statement found at:", line_num, "\n->", line
+                    i = i + 1
+                else:
+                    i = i + 1
+
 def main():
     filename = sys.argv[1]
     print 'Hi there! Here\'s your javascript file parser implemented in PYTHON.\n'
     variables = extract_variables(filename)
-    #conditionals = extract_conditionals(filename)
+    conditionals = extract_conditionals(filename)
 
 if __name__ == '__main__':
   main()
