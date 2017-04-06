@@ -12,7 +12,7 @@ function someFunction() {
         var another_local;
     }
 }
-}
+
 if (true) {
     // this 'if' conditional block doesn't create a new scope
     // name is still in the global scope
