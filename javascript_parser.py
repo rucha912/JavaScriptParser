@@ -2,29 +2,52 @@ import sys
 import re
 
 def extract_variables(filename):
-	variables = []          #store all variables in a list
-	occurences = []         #store the number of occurences of a particular variable
-	matches = []            #store the final list of variables in a list
-	f1 = open(filename, 'rU')
-	text = f1.read()
-	f1.close()
-	f2 = open(filename, 'r')
-	lines = f2.readlines()
-	#print lines
-	line_no = 0
-	matches = re.findall('var\s+([a-zA-Z_][a-zA-Z0-9_]{0,31})', text)
-	for match in matches:
-                occurences = re.findall(match, text)
-                if len(occurences) == 1:
-                        variables.append(match)        
-        print '\nHere are variables that were declared but never used:\n'
-        for variable in variables:
-                print 'name of the variable:', variable
-                for (num, line) in enumerate(lines, 1):
-                        if variable in line:
-                                print 'found at line:', num , '\n'
-        f2.close()
+	f = open(filename, 'r')
 
+        var_list = []
+
+        #take the whole line with the word let or var in it
+        for line_number, line in enumerate(f):
+            var = re.findall('(let|var)(.*)\s*=*\s*(?=;)', line)
+            if len(var)>0:
+                var_list.append((var[0], line_number + 1))
+
+#print var_list
+
+#make a list with just variable names and their line number
+        for place, item in enumerate(var_list):
+            junk , var = item[0]
+
+            temp =  var.split('=')
+            new_key = temp[0].strip()
+            var_list[place] = (new_key, item[1])
+
+#print var_list
+
+#make a new dictionary to count the occurrence of the variables
+        new_dict = {}
+        for item in var_list:
+            new_dict[item] = 0
+
+#instantiate file iterator again
+        f = open(filename, 'r')
+
+#count occurrence of variable and store it in dictionary
+        for line in f:
+            for key in new_dict.iterkeys():
+                if line.strip().startswith('//'):
+                    pass
+                else:   
+                    pattern = '\\b' + key[0] + '\\b'
+                    find = re.search(pattern, line)
+                    if find!=None:
+                        new_dict[key] = new_dict[key] + 1
+
+#Print variables with only one occurrence as unused 
+        for key, value in  new_dict.iteritems():
+            if value == 1:
+                print "Unused Variable: ", key[0], "at line:", key[1]
+        
 def extract_conditionals(filename):
         f = open(filename, 'r')
         i = 1
@@ -47,14 +70,18 @@ def extract_conditionals(filename):
 
 def balance_paranthesis(filename):
         f = open(filename,'r')
+        count1 = 0
+        count2 = 0
         count = 0
         for line_number, line in enumerate(f):
                 if '{' in line:
-                        count = count +1
+                        count1 = count1 + 1
+                        count = count + 1
                 if '}' in line:
+                        count2 = count2 + 1
                         count = count - 1
 
-        if count == 0:
+        if count1 == 0:
                 print 'The paranthesis are balanced in your code'
         if count < 0:
                 print 'There is an extra paranthesis in your code'
